@@ -1,0 +1,72 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.pyc
+*.pyo
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# Database
+fraud.db
+fraud.db-journal
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# ML Models
+model.pkl
+*.pkl
+
+# Logs
+*.log
+fraud_logs.txt
+logs/
+
+# Environment Variables
+.env
+.env.local
+.env.production
+.env.staging
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Docker
+data/
+*.pid
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Distribution
+dist/
+build/
+*.egg-info/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Temporary files
+*.tmp
+*.bak
+*.backup

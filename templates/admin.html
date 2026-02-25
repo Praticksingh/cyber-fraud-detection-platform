@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Fraud Detection - Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
+            color: #e0e0e0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #fff;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            color: #a0a0a0;
+            font-size: 1.1em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #2d2d44 0%, #3a3a52 100%);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .stat-card h3 {
+            font-size: 0.9em;
+            color: #a0a0a0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-card.total .value { color: #4fc3f7; }
+        .stat-card.critical .value { color: #ef5350; }
+        .stat-card.high .value { color: #ff9800; }
+        .stat-card.blacklisted .value { color: #ab47bc; }
+
+        .chart-section {
+            background: linear-gradient(135deg, #2d2d44 0%, #3a3a52 100%);
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chart-section h2 {
+            margin-bottom: 20px;
+            color: #fff;
+            font-size: 1.5em;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .table-section {
+            background: linear-gradient(135deg, #2d2d44 0%, #3a3a52 100%);
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .table-section h2 {
+            margin-bottom: 20px;
+            color: #fff;
+            font-size: 1.5em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        thead {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #fff;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 1px;
+        }
+
+        td {
+            padding: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge.critical {
+            background: #ef5350;
+            color: #fff;
+        }
+
+        .badge.high {
+            background: #ff9800;
+            color: #fff;
+        }
+
+        .badge.medium {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .badge.low {
+            background: #66bb6a;
+            color: #fff;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #a0a0a0;
+            font-style: italic;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #4fc3f7 0%, #2196f3 100%);
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 20px;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(79, 195, 247, 0.4);
+        }
+
+        .timestamp {
+            color: #a0a0a0;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            table {
+                font-size: 0.85em;
+            }
+            
+            th, td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛡️ Cyber Fraud Detection System</h1>
+            <p class="subtitle">Admin Dashboard - Real-time Monitoring</p>
+        </header>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card total">
+                <h3>Total Requests</h3>
+                <div class="value">{{ total_requests }}</div>
+            </div>
+            <div class="stat-card critical">
+                <h3>Critical Threats</h3>
+                <div class="value">{{ critical_count }}</div>
+            </div>
+            <div class="stat-card high">
+                <h3>High Risk</h3>
+                <div class="value">{{ high_count }}</div>
+            </div>
+            <div class="stat-card blacklisted">
+                <h3>Blacklisted</h3>
+                <div class="value">{{ blacklisted_count }}</div>
+            </div>
+        </div>
+
+        <!-- Risk Distribution Chart -->
+        <div class="chart-section">
+            <h2>📊 Risk Distribution</h2>
+            <div class="chart-container">
+                <canvas id="riskChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent Threats Table -->
+        <div class="table-section">
+            <h2>🚨 Recent Threats (Last 10)</h2>
+            {% if recent_logs %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Phone Number</th>
+                        <th>Risk Score</th>
+                        <th>Risk Level</th>
+                        <th>Threat Category</th>
+                        <th>Confidence</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in recent_logs %}
+                    <tr>
+                        <td>{{ log.phone_number or 'N/A' }}</td>
+                        <td><strong>{{ log.risk_score }}</strong></td>
+                        <td>
+                            <span class="badge {{ log.risk_level.lower() }}">
+                                {{ log.risk_level }}
+                            </span>
+                        </td>
+                        <td>{{ log.threat_category }}</td>
+                        <td>{{ log.confidence }}%</td>
+                        <td class="timestamp">{{ log.timestamp }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="no-data">No fraud logs available yet.</div>
+            {% endif %}
+        </div>
+
+        <!-- Blacklisted Numbers Table -->
+        <div class="table-section">
+            <h2>🚫 Blacklisted Phone Numbers</h2>
+            {% if blacklist %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Phone Number</th>
+                        <th>Reason</th>
+                        <th>Added At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in blacklist %}
+                    <tr>
+                        <td><strong>{{ entry.phone_number }}</strong></td>
+                        <td>{{ entry.reason }}</td>
+                        <td class="timestamp">{{ entry.added_at }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="no-data">No blacklisted numbers yet.</div>
+            {% endif %}
+        </div>
+
+        <center>
+            <button class="refresh-btn" onclick="location.reload()">🔄 Refresh Dashboard</button>
+        </center>
+    </div>
+
+    <script>
+        // Risk Distribution Chart
+        const ctx = document.getElementById('riskChart').getContext('2d');
+        const riskChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Critical', 'High', 'Medium', 'Low'],
+                datasets: [{
+                    label: 'Number of Threats',
+                    data: [
+                        {{ critical_count }},
+                        {{ high_count }},
+                        {{ medium_count }},
+                        {{ low_count }}
+                    ],
+                    backgroundColor: [
+                        'rgba(239, 83, 80, 0.8)',
+                        'rgba(255, 152, 0, 0.8)',
+                        'rgba(255, 193, 7, 0.8)',
+                        'rgba(102, 187, 106, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(239, 83, 80, 1)',
+                        'rgba(255, 152, 0, 1)',
+                        'rgba(255, 193, 7, 1)',
+                        'rgba(102, 187, 106, 1)'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#e0e0e0',
+                            stepSize: 1
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#e0e0e0'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // WebSocket connection for live updates
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/ws/dashboard`;
+        let ws;
+        let reconnectInterval = 3000;
+
+        function connectWebSocket() {
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = function() {
+                console.log('WebSocket connected');
+            };
+
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                
+                if (data.type === 'update') {
+                    // Update stats cards
+                    updateStats(data.stats);
+                    
+                    // Add latest entry to table if available
+                    if (data.latest_entry) {
+                        addLatestEntry(data.latest_entry);
+                    }
+                }
+            };
+
+            ws.onclose = function() {
+                console.log('WebSocket disconnected. Reconnecting...');
+                setTimeout(connectWebSocket, reconnectInterval);
+            };
+
+            ws.onerror = function(error) {
+                console.error('WebSocket error:', error);
+                ws.close();
+            };
+        }
+
+        function updateStats(stats) {
+            // Update stat cards
+            const cards = document.querySelectorAll('.stat-card .value');
+            if (cards[0]) cards[0].textContent = stats.total_requests;
+            if (cards[1]) cards[1].textContent = stats.critical_count;
+            if (cards[2]) cards[2].textContent = stats.high_count;
+            if (cards[3]) cards[3].textContent = stats.blacklisted_count;
+        }
+
+        function addLatestEntry(entry) {
+            const tbody = document.querySelector('.table-section tbody');
+            if (!tbody) return;
+
+            // Create new row
+            const row = document.createElement('tr');
+            row.style.animation = 'fadeIn 0.5s ease';
+            row.innerHTML = `
+                <td>${entry.phone_number}</td>
+                <td><strong>${entry.risk_score}</strong></td>
+                <td>
+                    <span class="badge ${entry.risk_level.toLowerCase()}">
+                        ${entry.risk_level}
+                    </span>
+                </td>
+                <td>${entry.threat_category}</td>
+                <td>${entry.confidence}%</td>
+                <td class="timestamp">${entry.timestamp}</td>
+            `;
+
+            // Insert at the beginning
+            tbody.insertBefore(row, tbody.firstChild);
+
+            // Keep only last 10 rows
+            while (tbody.children.length > 10) {
+                tbody.removeChild(tbody.lastChild);
+            }
+        }
+
+        // Add fade-in animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(-10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Connect WebSocket on page load
+        connectWebSocket();
+    </script>
+</body>
+</html>

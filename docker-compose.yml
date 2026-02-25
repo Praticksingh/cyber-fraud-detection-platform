@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  fraud-api:
+    build: .
+    container_name: fraud-detection-api
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount volume for persistent database
+      - ./data:/app/data
+      # Mount volume for logs
+      - ./logs:/app/logs
+    environment:
+      # Environment
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      
+      # API Keys
+      - PUBLIC_API_KEY=${PUBLIC_API_KEY:-public123}
+      - ADMIN_API_KEY=${ADMIN_API_KEY:-admin123}
+      
+      # Alert Settings - Email
+      - ALERT_EMAIL_ENABLED=${ALERT_EMAIL_ENABLED:-false}
+      - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
+      - ALERT_EMAIL_TO=${ALERT_EMAIL_TO:-admin@example.com}
+      
+      # Alert Settings - Webhook
+      - ALERT_WEBHOOK_URL=${ALERT_WEBHOOK_URL:-}
+      
+      # Database
+      - DATABASE_URL=${DATABASE_URL:-sqlite:////app/data/fraud.db}
+      
+      # Server
+      - HOST=${HOST:-0.0.0.0}
+      - PORT=${PORT:-8000}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - fraud-network
+
+networks:
+  fraud-network:
+    driver: bridge
+
+volumes:
+  fraud-data:
+  fraud-logs:
