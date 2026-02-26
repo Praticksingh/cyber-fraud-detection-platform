@@ -2,10 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import './Register.css';
-
-// Get API base URL from environment variable
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 // Password validation regex
 const PASSWORD_REGEX = {

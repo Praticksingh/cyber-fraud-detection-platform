@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import {
   getToken as getStoredToken,
   setToken as setStoredToken,
@@ -10,9 +11,6 @@ import {
 } from '../utils/auth';
 
 const AuthContext = createContext();
-
-// Get API base URL from environment variable
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
