@@ -125,11 +125,17 @@ function Register() {
       console.error('Registration error:', err);
       console.error('Error response:', err.response);
       console.error('Error response data:', err.response?.data);
+      console.error('Error message:', err.message);
+      console.error('API URL:', API_BASE_URL);
       
       // Extract detailed error message from backend
       let errorMessage = 'Registration failed. Please try again.';
       
-      if (err.response?.data?.detail) {
+      // Check for network errors
+      if (err.message === 'Network Error' || !err.response) {
+        errorMessage = `Cannot connect to server at ${API_BASE_URL}. Please ensure the backend is running on port 8000.`;
+        console.error('Network error detected. Backend might not be running.');
+      } else if (err.response?.data?.detail) {
         if (Array.isArray(err.response.data.detail)) {
           // Pydantic validation errors
           const validationErrors = err.response.data.detail
