@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "SaaS AI Fraud Detection Platform Frontend",
   "private": true,
+  "homepage": ".",
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
