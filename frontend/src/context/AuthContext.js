@@ -3,11 +3,9 @@ import axios from 'axios';
 import {
   getToken as getStoredToken,
   setToken as setStoredToken,
-  removeToken,
   getUser as getStoredUser,
   setUser as setStoredUser,
   isTokenExpired,
-  decodeToken,
   clearAuth
 } from '../utils/auth';
 

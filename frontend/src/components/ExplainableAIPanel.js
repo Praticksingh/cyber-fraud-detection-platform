@@ -16,31 +16,6 @@ function ExplainableAIPanel({ result }) {
     }
   };
 
-  const highlightSuspiciousWords = (text, factors) => {
-    if (!text || !factors) return text;
-    
-    // Extract suspicious keywords from factors
-    const suspiciousWords = factors
-      .filter(f => f.toLowerCase().includes('keyword') || f.toLowerCase().includes('pattern'))
-      .flatMap(f => {
-        const match = f.match(/'([^']+)'/g);
-        return match ? match.map(m => m.replace(/'/g, '')) : [];
-      });
-
-    if (suspiciousWords.length === 0) return text;
-
-    let highlightedText = text;
-    suspiciousWords.forEach(word => {
-      const regex = new RegExp(`(${word})`, 'gi');
-      highlightedText = highlightedText.replace(
-        regex,
-        '<span class="suspicious-word">$1</span>'
-      );
-    });
-
-    return highlightedText;
-  };
-
   return (
     <div className="xai-panel">
       <div className="xai-header">

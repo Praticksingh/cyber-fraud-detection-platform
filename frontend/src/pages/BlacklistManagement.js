@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import TopBar from '../components/TopBar';
@@ -16,11 +16,7 @@ function BlacklistManagement() {
   const { showToast } = useToast();
   const { addAuditLog } = useAuth();
 
-  useEffect(() => {
-    fetchBlacklist();
-  }, []);
-
-  const fetchBlacklist = async () => {
+  const fetchBlacklist = useCallback(async () => {
     setLoading(true);
     try {
       const response = await api.get('/blacklist');
@@ -32,7 +28,11 @@ function BlacklistManagement() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showToast]);
+
+  useEffect(() => {
+    fetchBlacklist();
+  }, [fetchBlacklist]);
 
   const handleAddBlacklist = async (e) => {
     e.preventDefault();

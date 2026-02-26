@@ -53,16 +53,6 @@ function Analyze() {
     });
   };
 
-  const getRiskColor = (level) => {
-    switch (level?.toLowerCase()) {
-      case 'low': return '#10b981';
-      case 'medium': return '#f59e0b';
-      case 'high': return '#ef4444';
-      case 'critical': return '#dc2626';
-      default: return '#6366f1';
-    }
-  };
-
   return (
     <div className="analyze-page">
       {loading && <LoadingOverlay message="Analyzing message..." />}
