@@ -123,6 +123,8 @@ function Register() {
       }, 1500);
     } catch (err) {
       console.error('Registration error:', err);
+      console.error('Error response:', err.response);
+      console.error('Error response data:', err.response?.data);
       
       // Extract detailed error message from backend
       let errorMessage = 'Registration failed. Please try again.';
@@ -138,6 +140,8 @@ function Register() {
           // Simple error message
           errorMessage = err.response.data.detail;
         }
+      } else if (err.message) {
+        errorMessage = `Registration failed: ${err.message}`;
       }
       
       showToast(errorMessage, 'error');
