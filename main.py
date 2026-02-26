@@ -1,6 +1,8 @@
-from fastapi import FastAPI, Request, Depends, WebSocket, WebSocketDisconnect, BackgroundTasks
+from fastapi import FastAPI, Request, Depends, WebSocket, WebSocketDisconnect, BackgroundTasks, HTTPException, status
 from fastapi.templating import Jinja2Templates
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from models import FraudRequest, FraudResponse
 from detection_engine import ScamDetectionEngine
 from risk_scorer import RiskScorer
@@ -12,16 +14,32 @@ from blacklist import BlacklistChecker
 from rate_limiter import RateLimiter
 from logger import FraudLogger
 from history_store import HistoryStore
-from datetime import datetime
+from datetime import datetime, timedelta
 from database import get_db, init_db
-from db_models import FraudLog, Blacklist
+from db_models import FraudLog, Blacklist, User
 from security import verify_api_key, verify_admin_key
 from alert_service import AlertService
 from config import config
+from graph_service import fraud_graph
+from auth import (
+    UserRegister, UserLogin, Token,
+    authenticate_user, create_user, create_access_token,
+    get_user_by_username, get_user_by_email,
+    get_current_user, get_current_admin_user
+)
 from typing import List
 import json
 
 app = FastAPI(title="Cyber Fraud Detection System")
+
+# Configure CORS for frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Configure appropriately for production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Configure Jinja2 templates
 templates = Jinja2Templates(directory="templates")
@@ -77,6 +95,78 @@ async def root():
             "alternative": "/redoc"
         }
     }
+
+
+@app.post("/register", status_code=status.HTTP_201_CREATED)
+async def register(user_data: UserRegister, db: Session = Depends(get_db)):
+    """Register a new user account with comprehensive password validation."""
+    try:
+        # Check if username already exists
+        existing_user = get_user_by_username(db, user_data.username)
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Username already registered"
+            )
+        
+        # Check if email already exists
+        existing_email = get_user_by_email(db, user_data.email)
+        if existing_email:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already registered"
+            )
+        
+        # Create new user (password validation handled by Pydantic)
+        user = create_user(
+            db=db,
+            username=user_data.username,
+            email=user_data.email,
+            password=user_data.password,
+            role="user"  # Default role
+        )
+        
+        return {
+            "message": "User registered successfully",
+            "username": user.username,
+            "email": user.email,
+            "role": user.role
+        }
+    except HTTPException:
+        # Re-raise HTTP exceptions
+        raise
+    except Exception as e:
+        # Log and return generic error for unexpected issues
+        print(f"Registration error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Registration failed: {str(e)}"
+        )
+
+
+@app.post("/login", response_model=Token)
+async def login(user_credentials: UserLogin, db: Session = Depends(get_db)):
+    """Login and receive JWT token."""
+    # Authenticate user
+    user = authenticate_user(db, user_credentials.username, user_credentials.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Create access token
+    access_token = create_access_token(
+        data={"sub": user.username, "role": user.role}
+    )
+    
+    return Token(
+        access_token=access_token,
+        token_type="bearer",
+        role=user.role,
+        username=user.username
+    )
 
 @app.post("/analyze", response_model=FraudResponse)
 async def analyze_message(
@@ -217,6 +307,20 @@ async def analyze_message(
     # Step 9: Broadcast to WebSocket clients
     background_tasks.add_task(broadcast_update, db)
     
+    # Step 10: Add to knowledge graph
+    if phone:
+        # Add phone number to graph
+        fraud_graph.add_entity("phone", phone, final_score)
+        
+        # If high risk, propagate risk to connected entities
+        if final_score > 70:
+            fraud_graph.propagate_risk(phone, decay_factor=0.7)
+        
+        # Create relationships based on patterns
+        if detection_results.get("threat_matches"):
+            for threat in detection_results["threat_matches"]:
+                fraud_graph.add_relationship(phone, f"pattern:{threat}", "exhibits_pattern", 0.8)
+    
     return FraudResponse(
         risk_score=final_score,
         explanation=explanation,
@@ -241,7 +345,7 @@ async def root():
 async def admin_dashboard(
     request: Request, 
     db: Session = Depends(get_db),
-    api_key: str = Depends(verify_admin_key)
+    current_user: User = Depends(get_current_admin_user)
 ):
     """Admin dashboard with statistics and visualizations - Admin only."""
     # Query statistics
@@ -293,13 +397,37 @@ async def admin_dashboard(
         "blacklist": formatted_blacklist
     })
 
+@app.get("/history")
+async def get_all_history(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get all fraud analysis history from database - Authenticated users."""
+    logs = db.query(FraudLog).order_by(FraudLog.timestamp.desc()).all()
+    
+    history = [
+        {
+            "id": log.id,
+            "phone_number": log.phone_number,
+            "risk_score": log.risk_score,
+            "risk_level": log.risk_level,
+            "threat_category": log.threat_category,
+            "confidence": log.confidence,
+            "timestamp": log.timestamp.strftime("%Y-%m-%d %H:%M:%S")
+        }
+        for log in logs
+    ]
+    
+    return history
+
+
 @app.get("/history/{phone_number}")
 async def get_history(
     phone_number: str, 
     db: Session = Depends(get_db),
-    api_key: str = Depends(verify_admin_key)
+    current_user: User = Depends(get_current_user)
 ):
-    """Get fraud analysis history for a phone number from database - Admin only."""
+    """Get fraud analysis history for a phone number from database - Authenticated users."""
     logs = db.query(FraudLog).filter(FraudLog.phone_number == phone_number).order_by(FraudLog.timestamp.desc()).all()
     
     if not logs:
@@ -331,9 +459,9 @@ async def get_history(
 @app.get("/stats")
 async def get_stats(
     db: Session = Depends(get_db),
-    api_key: str = Depends(verify_admin_key)
+    current_user: User = Depends(get_current_user)
 ):
-    """Get fraud detection statistics - Admin only."""
+    """Get fraud detection statistics - Authenticated users."""
     total_requests = db.query(FraudLog).count()
     critical_count = db.query(FraudLog).filter(FraudLog.risk_level == "Critical").count()
     high_count = db.query(FraudLog).filter(FraudLog.risk_level == "High").count()
@@ -351,7 +479,7 @@ async def get_stats(
     }
 
 @app.get("/config")
-async def get_config(api_key: str = Depends(verify_admin_key)):
+async def get_config(current_user: User = Depends(get_current_admin_user)):
     """Get configuration summary - Admin only (no sensitive data)."""
     return {
         "status": "Configuration loaded successfully",
@@ -361,7 +489,7 @@ async def get_config(api_key: str = Depends(verify_admin_key)):
 @app.get("/blacklist")
 async def get_blacklist(
     db: Session = Depends(get_db),
-    api_key: str = Depends(verify_admin_key)
+    current_user: User = Depends(get_current_admin_user)
 ):
     """Get all blacklisted phone numbers - Admin only."""
     blacklisted = db.query(Blacklist).order_by(Blacklist.added_at.desc()).all()
@@ -380,6 +508,73 @@ async def get_blacklist(
         "total_blacklisted": len(result),
         "blacklist": result
     }
+
+
+@app.post("/blacklist", status_code=status.HTTP_201_CREATED)
+async def add_to_blacklist(
+    blacklist_data: dict,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_admin_user)
+):
+    """Add a phone number to blacklist - Admin only."""
+    phone_number = blacklist_data.get("phone_number")
+    reason = blacklist_data.get("reason")
+    
+    if not phone_number or not reason:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Phone number and reason are required"
+        )
+    
+    # Check if already blacklisted
+    existing = db.query(Blacklist).filter(Blacklist.phone_number == phone_number).first()
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Phone number already blacklisted"
+        )
+    
+    # Add to blacklist
+    blacklist_entry = Blacklist(
+        phone_number=phone_number,
+        reason=reason,
+        added_at=datetime.now()
+    )
+    db.add(blacklist_entry)
+    db.commit()
+    db.refresh(blacklist_entry)
+    
+    return {
+        "message": "Phone number added to blacklist",
+        "id": blacklist_entry.id,
+        "phone_number": blacklist_entry.phone_number
+    }
+
+
+@app.delete("/blacklist/{blacklist_id}")
+async def remove_from_blacklist(
+    blacklist_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_admin_user)
+):
+    """Remove a phone number from blacklist - Admin only."""
+    blacklist_entry = db.query(Blacklist).filter(Blacklist.id == blacklist_id).first()
+    
+    if not blacklist_entry:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Blacklist entry not found"
+        )
+    
+    phone_number = blacklist_entry.phone_number
+    db.delete(blacklist_entry)
+    db.commit()
+    
+    return {
+        "message": "Phone number removed from blacklist",
+        "phone_number": phone_number
+    }
+
 
 @app.websocket("/ws/dashboard")
 async def websocket_endpoint(websocket: WebSocket):
@@ -426,30 +621,116 @@ async def broadcast_update(db: Session):
         "latest_entry": latest_entry
     })
 
-@app.post("/retrain")
 async def retrain_model(
     training_data: dict,
-    api_key: str = Depends(verify_admin_key)
+    current_user: User = Depends(get_current_admin_user)
 ):
     """Retrain the ML model with new data - Admin only."""
     scam_messages = training_data.get("scam_messages", [])
     legitimate_messages = training_data.get("legitimate_messages", [])
-    
+
     if not scam_messages or not legitimate_messages:
         return {
             "status": "error",
             "message": "Both scam_messages and legitimate_messages are required"
         }
-    
+
     # Retrain the model
     ml_model.retrain(scam_messages, legitimate_messages)
-    
+
     total_samples = len(scam_messages) + len(legitimate_messages)
-    
+
     return {
         "status": "Model retrained successfully",
         "new_training_samples": total_samples,
         "scam_samples": len(scam_messages),
         "legitimate_samples": len(legitimate_messages)
     }
+
+
+@app.get("/graph")
+async def get_graph(limit: int = 100):
+    """Get knowledge graph data for visualization - Public endpoint."""
+    graph_data = fraud_graph.get_graph_data_for_visualization(limit=limit)
+    graph_stats = fraud_graph.get_statistics()
+    
+    return {
+        "nodes": graph_data["nodes"],
+        "edges": graph_data["edges"],
+        "statistics": graph_stats
+    }
+
+@app.get("/analytics/summary")
+async def get_analytics_summary(db: Session = Depends(get_db)):
+    """Get analytics summary - Public endpoint."""
+    total_scans = db.query(FraudLog).count()
+    high_risk = db.query(FraudLog).filter(
+        FraudLog.risk_level.in_(["High", "Critical"])
+    ).count()
+    medium_risk = db.query(FraudLog).filter(FraudLog.risk_level == "Medium").count()
+    low_risk = db.query(FraudLog).filter(FraudLog.risk_level == "Low").count()
+    
+    return {
+        "total_scans": total_scans,
+        "high_risk": high_risk,
+        "medium_risk": medium_risk,
+        "low_risk": low_risk
+    }
+
+@app.get("/analytics/distribution")
+async def get_analytics_distribution(db: Session = Depends(get_db)):
+    """Get risk level distribution - Public endpoint."""
+    critical = db.query(FraudLog).filter(FraudLog.risk_level == "Critical").count()
+    high = db.query(FraudLog).filter(FraudLog.risk_level == "High").count()
+    medium = db.query(FraudLog).filter(FraudLog.risk_level == "Medium").count()
+    low = db.query(FraudLog).filter(FraudLog.risk_level == "Low").count()
+    
+    return {
+        "critical": critical,
+        "high": high,
+        "medium": medium,
+        "low": low
+    }
+
+@app.get("/analytics/trends")
+async def get_analytics_trends(days: int = 30, db: Session = Depends(get_db)):
+    """Get fraud detection trends over time - Public endpoint."""
+    # Get date range
+    end_date = datetime.now()
+    start_date = end_date - timedelta(days=days)
+    
+    # Query logs grouped by date
+    logs = db.query(
+        func.date(FraudLog.timestamp).label('date'),
+        func.count(FraudLog.id).label('count')
+    ).filter(
+        FraudLog.timestamp >= start_date
+    ).group_by(
+        func.date(FraudLog.timestamp)
+    ).order_by(
+        func.date(FraudLog.timestamp)
+    ).all()
+    
+    # Format results
+    trends = [
+        {
+            "date": log.date.strftime("%Y-%m-%d") if hasattr(log.date, 'strftime') else str(log.date),
+            "count": log.count
+        }
+        for log in logs
+    ]
+    
+    # Fill in missing dates with zero counts
+    date_map = {trend["date"]: trend["count"] for trend in trends}
+    result = []
+    
+    for i in range(days):
+        date = (start_date + timedelta(days=i)).strftime("%Y-%m-%d")
+        result.append({
+            "date": date,
+            "count": date_map.get(date, 0)
+        })
+    
+    return result
+
 

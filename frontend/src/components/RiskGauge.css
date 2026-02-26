@@ -1,0 +1,123 @@
+.risk-gauge {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  flex-shrink: 0;
+}
+
+.gauge-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.gauge-background {
+  transition: stroke 0.3s;
+}
+
+.gauge-progress {
+  transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gauge-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.gauge-score {
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 1;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  animation: scaleIn 0.5s ease-out 0.5s both;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.gauge-label {
+  font-size: 13px;
+  color: #a0a0b0;
+  margin-top: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  animation: fadeIn 0.5s ease-out 0.8s both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .risk-gauge {
+    width: 140px;
+    height: 140px;
+  }
+  
+  .gauge-score {
+    font-size: 42px;
+  }
+  
+  .gauge-label {
+    font-size: 12px;
+  }
+}
+
+/* Enhanced glow effects for risk levels */
+.gauge-progress.low {
+  filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.6));
+}
+
+.gauge-progress.medium {
+  filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.6));
+}
+
+.gauge-progress.high {
+  filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.6));
+}
+
+.gauge-progress.critical {
+  filter: drop-shadow(0 0 12px rgba(220, 38, 38, 0.8));
+  animation: criticalPulse 2s ease-in-out infinite;
+}
+
+@keyframes criticalPulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 12px rgba(220, 38, 38, 0.8));
+  }
+  50% {
+    filter: drop-shadow(0 0 20px rgba(220, 38, 38, 1));
+  }
+}
+
+/* Gauge container animation */
+.risk-gauge {
+  animation: gaugeEnter 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes gaugeEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

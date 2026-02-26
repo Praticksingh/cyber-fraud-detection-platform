@@ -1,0 +1,53 @@
+.app {
+  display: flex;
+  min-height: 100vh;
+  position: relative;
+}
+
+.main-wrapper {
+  flex: 1;
+  margin-left: 260px;
+  transition: margin-left var(--transition-base);
+  position: relative;
+  z-index: 1;
+}
+
+.main-wrapper.full-width {
+  margin-left: 0;
+}
+
+.main-content {
+  padding: var(--space-lg);
+  min-height: 100vh;
+  max-width: 1600px;
+  margin: 0 auto;
+  animation: pageEnter var(--transition-slow) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .main-wrapper {
+    margin-left: 70px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-wrapper {
+    margin-left: 0;
+  }
+  
+  .main-content {
+    padding: var(--space-md);
+  }
+}
