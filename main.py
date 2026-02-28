@@ -29,16 +29,30 @@ from auth import (
 )
 from typing import List
 import json
+import os
 
 app = FastAPI(title="Cyber Fraud Detection System")
 
-# Configure CORS for frontend
+# Configure CORS for frontend - Allow both local and production origins
+allowed_origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://cyber-fraud-detection-platform.vercel.app",
+    "https://*.vercel.app",  # Allow all Vercel preview deployments
+]
+
+# Add custom frontend URL from environment if provided
+frontend_url = os.getenv("FRONTEND_URL")
+if frontend_url:
+    allowed_origins.append(frontend_url)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configure appropriately for production
+    allow_origins=["*"],  # Allow all origins for now (can be restricted later)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # Configure Jinja2 templates
