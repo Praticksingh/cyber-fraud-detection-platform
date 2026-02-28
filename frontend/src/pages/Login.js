@@ -23,8 +23,8 @@ function Login() {
     setError('');
     
     if (!username || !password) {
-      setError('Please enter username and password');
-      showToast('Please enter username and password', 'error');
+      setError('Please enter username/email and password');
+      showToast('Please enter username/email and password', 'error');
       return;
     }
 
@@ -57,13 +57,13 @@ function Login() {
             {error && <div className="error-message">{error}</div>}
             
             <div className="form-group">
-              <label className="form-label">Username</label>
+              <label className="form-label">Username or Email</label>
               <input
                 type="text"
                 className="form-input"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter your username"
+                placeholder="Enter your username or email"
                 required
                 disabled={loading}
                 autoComplete="username"

@@ -160,13 +160,13 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
 
 @app.post("/login", response_model=Token)
 async def login(user_credentials: UserLogin, db: Session = Depends(get_db)):
-    """Login and receive JWT token."""
-    # Authenticate user
+    """Login with username or email and receive JWT token."""
+    # Authenticate user (accepts username or email)
     user = authenticate_user(db, user_credentials.username, user_credentials.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            detail="Incorrect username/email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     

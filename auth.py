@@ -71,7 +71,7 @@ class UserRegister(BaseModel):
 
 
 class UserLogin(BaseModel):
-    username: str
+    username: str  # Can be username or email
     password: str
 
 
@@ -172,13 +172,26 @@ def decode_access_token(token: str) -> TokenData:
 
 
 # User authentication
-def authenticate_user(db: Session, username: str, password: str) -> Optional[User]:
-    """Authenticate a user by username and password."""
-    user = db.query(User).filter(User.username == username).first()
+def authenticate_user(db: Session, username_or_email: str, password: str) -> Optional[User]:
+    """
+    Authenticate a user by username or email and password.
+    Accepts either username or email as the identifier.
+    """
+    # Try to find user by username first
+    user = db.query(User).filter(User.username == username_or_email).first()
+    
+    # If not found by username, try email
+    if not user:
+        user = db.query(User).filter(User.email == username_or_email).first()
+    
+    # If user not found at all
     if not user:
         return None
+    
+    # Verify password
     if not verify_password(password, user.hashed_password):
         return None
+    
     return user
 
 
