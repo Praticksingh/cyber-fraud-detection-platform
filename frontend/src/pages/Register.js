@@ -131,7 +131,7 @@ function Register() {
       
       // Check for network errors
       if (err.message === 'Network Error' || !err.response) {
-        errorMessage = `Cannot connect to server at ${API_BASE_URL}. Please ensure the backend is running on port 8000.`;
+        errorMessage = `Cannot connect to server at ${API_BASE_URL}. Please ensure the backend is reachable.`;
         console.error('Network error detected. Backend might not be running.');
       } else if (err.response?.data?.detail) {
         if (Array.isArray(err.response.data.detail)) {
