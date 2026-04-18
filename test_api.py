@@ -6,12 +6,14 @@ Run this after starting the server with: uvicorn main:app --reload
 import requests
 import json
 
-BASE_URL = "http://localhost:8000"
+import os
 
-# API Keys
-PUBLIC_KEY = "public123"
-ADMIN_KEY = "admin123"
-INVALID_KEY = "invalid123"
+BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
+
+# API Keys — read from environment variables; set these before running the tests
+PUBLIC_KEY = os.getenv("PUBLIC_API_KEY", "")
+ADMIN_KEY = os.getenv("ADMIN_API_KEY", "")
+INVALID_KEY = "invalid-key-for-testing"
 
 
 def test_no_api_key():

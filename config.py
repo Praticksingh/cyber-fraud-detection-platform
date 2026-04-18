@@ -54,6 +54,17 @@ class Config:
         return os.getenv("ENVIRONMENT", "development").lower() == "production"
     
     @classmethod
+    def _sanitize_db_url(cls, url: str) -> str:
+        """Return the database URL with any embedded credentials removed."""
+        import re
+        # Remove password from connection strings like scheme://user:password@host/db
+        sanitized = re.sub(r'(://[^:@/]*:)[^@]*(@)', r'\1***\2', url)
+        # For SQLite (sqlite:///path), also hide the file path
+        if sanitized.startswith("sqlite:///"):
+            sanitized = "sqlite:///***"
+        return sanitized
+
+    @classmethod
     def get_config_summary(cls) -> dict:
         """Get configuration summary (without sensitive data)."""
         return {
@@ -62,7 +73,7 @@ class Config:
             "alert_webhook_enabled": bool(cls.ALERT_WEBHOOK_URL),
             "smtp_host": cls.SMTP_HOST,
             "smtp_port": cls.SMTP_PORT,
-            "database_url": cls.DATABASE_URL.split("///")[0] + "///" + "***",  # Hide path
+            "database_url": cls._sanitize_db_url(cls.DATABASE_URL),
             "host": cls.HOST,
             "port": cls.PORT
         }

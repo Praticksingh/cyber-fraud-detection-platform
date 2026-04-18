@@ -8,38 +8,44 @@ import sys
 
 
 def test_config_defaults():
-    """Test that config loads with default values."""
+    """Test that config loads with default values (and no defaults for secret keys)."""
     print("\n" + "="*60)
     print("Testing Configuration - Default Values")
     print("="*60)
     
     # Clear any existing environment variables
     env_vars = [
-        "PUBLIC_API_KEY", "ADMIN_API_KEY", "ALERT_EMAIL_ENABLED",
-        "SMTP_HOST", "SMTP_PORT", "DATABASE_URL"
+        "PUBLIC_API_KEY", "ADMIN_API_KEY", "JWT_SECRET_KEY",
+        "ALERT_EMAIL_ENABLED", "SMTP_HOST", "SMTP_PORT", "DATABASE_URL"
     ]
     
     for var in env_vars:
         if var in os.environ:
             del os.environ[var]
     
-    # Import config (will use defaults)
+    # Re-import config to pick up the cleared environment
+    if 'config' in sys.modules:
+        del sys.modules['config']
+    
     from config import config
     
-    print(f"✓ PUBLIC_API_KEY: {config.PUBLIC_API_KEY}")
-    print(f"✓ ADMIN_API_KEY: {config.ADMIN_API_KEY}")
+    print(f"✓ PUBLIC_API_KEY: {'(set)' if config.PUBLIC_API_KEY else '(not set)'}  — required env var")
+    print(f"✓ ADMIN_API_KEY: {'(set)' if config.ADMIN_API_KEY else '(not set)'}  — required env var")
+    print(f"✓ JWT_SECRET_KEY: {'(set)' if config.JWT_SECRET_KEY else '(not set)'}  — required env var")
     print(f"✓ ALERT_EMAIL_ENABLED: {config.ALERT_EMAIL_ENABLED}")
     print(f"✓ SMTP_HOST: {config.SMTP_HOST}")
     print(f"✓ SMTP_PORT: {config.SMTP_PORT}")
     print(f"✓ DATABASE_URL: {config.DATABASE_URL}")
     
-    assert config.PUBLIC_API_KEY == "public123", "Default PUBLIC_API_KEY incorrect"
-    assert config.ADMIN_API_KEY == "admin123", "Default ADMIN_API_KEY incorrect"
+    # API keys and JWT secret have no built-in defaults — they must be supplied via env vars
+    assert config.PUBLIC_API_KEY is None, "PUBLIC_API_KEY should be None when env var is not set"
+    assert config.ADMIN_API_KEY is None, "ADMIN_API_KEY should be None when env var is not set"
+    assert config.JWT_SECRET_KEY is None, "JWT_SECRET_KEY should be None when env var is not set"
     assert config.ALERT_EMAIL_ENABLED == False, "Default ALERT_EMAIL_ENABLED incorrect"
     assert config.SMTP_HOST == "smtp.gmail.com", "Default SMTP_HOST incorrect"
     assert config.SMTP_PORT == 587, "Default SMTP_PORT incorrect"
     
-    print("\n✅ All default values loaded correctly!")
+    print("\n✅ Default values loaded correctly (secret keys require env vars)!")
     return True
 
 
@@ -52,6 +58,7 @@ def test_config_environment():
     # Set environment variables
     os.environ["PUBLIC_API_KEY"] = "test-public-key"
     os.environ["ADMIN_API_KEY"] = "test-admin-key"
+    os.environ["JWT_SECRET_KEY"] = "test-jwt-secret"
     os.environ["ALERT_EMAIL_ENABLED"] = "true"
     os.environ["SMTP_HOST"] = "smtp.test.com"
     os.environ["SMTP_PORT"] = "465"
@@ -65,6 +72,7 @@ def test_config_environment():
     
     print(f"✓ PUBLIC_API_KEY: {config.PUBLIC_API_KEY}")
     print(f"✓ ADMIN_API_KEY: {config.ADMIN_API_KEY}")
+    print(f"✓ JWT_SECRET_KEY: {'*' * len(config.JWT_SECRET_KEY)}")
     print(f"✓ ALERT_EMAIL_ENABLED: {config.ALERT_EMAIL_ENABLED}")
     print(f"✓ SMTP_HOST: {config.SMTP_HOST}")
     print(f"✓ SMTP_PORT: {config.SMTP_PORT}")
@@ -72,6 +80,7 @@ def test_config_environment():
     
     assert config.PUBLIC_API_KEY == "test-public-key", "Environment PUBLIC_API_KEY not loaded"
     assert config.ADMIN_API_KEY == "test-admin-key", "Environment ADMIN_API_KEY not loaded"
+    assert config.JWT_SECRET_KEY == "test-jwt-secret", "Environment JWT_SECRET_KEY not loaded"
     assert config.ALERT_EMAIL_ENABLED == True, "Environment ALERT_EMAIL_ENABLED not loaded"
     assert config.SMTP_HOST == "smtp.test.com", "Environment SMTP_HOST not loaded"
     assert config.SMTP_PORT == 465, "Environment SMTP_PORT not loaded"
