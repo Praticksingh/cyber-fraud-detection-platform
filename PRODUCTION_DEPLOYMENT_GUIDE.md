@@ -12,7 +12,7 @@
 ## Issue: Login/Registration Not Working
 
 ### Root Cause
-Your Vercel frontend doesn't have the environment variable set, so it's trying to connect to `http://localhost:8000` instead of your Render backend at `https://cyber-fraud-api.onrender.com`.
+Your Vercel frontend doesn't have the environment variable set, so it's trying to connect to `http://localhost:8000` instead of your Render backend at `https://cyber-fraud-detection-platform.onrender.com`.
 
 ---
 
@@ -31,7 +31,7 @@ Click **"Add New"** and enter:
 
 ```
 Name: REACT_APP_API_URL
-Value: https://cyber-fraud-api.onrender.com
+Value: https://cyber-fraud-detection-platform.onrender.com
 ```
 
 **Important**: Select ALL environments:
@@ -63,7 +63,7 @@ git push origin main
 2. Press F12 (open Developer Tools)
 3. Go to Console tab
 4. Try to register a new user
-5. Check Network tab - API calls should go to `https://cyber-fraud-api.onrender.com`
+5. Check Network tab - API calls should go to `https://cyber-fraud-detection-platform.onrender.com`
 
 ---
 
@@ -72,11 +72,11 @@ git push origin main
 ### Backend (Render) ✅
 - [x] CORS configured to allow all origins
 - [x] Service is running
-- [x] URL: `https://cyber-fraud-api.onrender.com`
+- [x] URL: `https://cyber-fraud-detection-platform.onrender.com`
 
 Test backend:
 ```bash
-curl https://cyber-fraud-api.onrender.com/
+curl https://cyber-fraud-detection-platform.onrender.com/
 ```
 
 Expected response:
@@ -214,7 +214,7 @@ python manage_users.py create-admin admin admin@example.com Admin@123
 **Check 1: Environment Variable**
 ```bash
 # In Vercel dashboard, verify:
-REACT_APP_API_URL = https://cyber-fraud-api.onrender.com
+REACT_APP_API_URL = https://cyber-fraud-detection-platform.onrender.com
 ```
 
 **Check 2: Redeployed?**
@@ -237,7 +237,7 @@ REACT_APP_API_URL = https://cyber-fraud-api.onrender.com
 
 **Test directly:**
 ```bash
-curl https://cyber-fraud-api.onrender.com/
+curl https://cyber-fraud-detection-platform.onrender.com/
 ```
 
 ### Issue: CORS Error
@@ -259,7 +259,7 @@ This is actually good - means connection works!
 
 ### Vercel (Frontend)
 ```
-REACT_APP_API_URL=https://cyber-fraud-api.onrender.com
+REACT_APP_API_URL=https://cyber-fraud-detection-platform.onrender.com
 REACT_APP_API_KEY=public123
 ```
 
@@ -276,7 +276,7 @@ FRONTEND_URL=https://your-vercel-url.vercel.app (optional)
 
 After setting up environment variables:
 
-- [ ] Backend responds at `https://cyber-fraud-api.onrender.com`
+- [ ] Backend responds at `https://cyber-fraud-detection-platform.onrender.com`
 - [ ] Frontend deployed on Vercel
 - [ ] Environment variable `REACT_APP_API_URL` is set
 - [ ] Frontend redeployed after setting variable
@@ -314,12 +314,12 @@ After setting up environment variables:
 
 **Test backend health:**
 ```bash
-curl https://cyber-fraud-api.onrender.com/
+curl https://cyber-fraud-detection-platform.onrender.com/
 ```
 
 **Test registration:**
 ```bash
-curl -X POST https://cyber-fraud-api.onrender.com/register \
+curl -X POST https://cyber-fraud-detection-platform.onrender.com/register \
   -H "Content-Type: application/json" \
   -d '{"username":"test","email":"test@test.com","password":"Test@1234"}'
 ```

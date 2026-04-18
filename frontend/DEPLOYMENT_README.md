@@ -6,7 +6,7 @@
 
 | Variable | Development | Production |
 |----------|-------------|------------|
-| `REACT_APP_API_URL` | `http://localhost:8000` | `https://cyber-fraud-api.onrender.com` |
+| `REACT_APP_API_URL` | `http://localhost:8000` | `https://cyber-fraud-detection-platform.onrender.com` |
 | `REACT_APP_API_KEY` | `public123` | `public123` |
 
 ### Files

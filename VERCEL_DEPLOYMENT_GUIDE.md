@@ -15,7 +15,7 @@ This guide covers deploying the FraudGuard AI frontend to Vercel with proper env
 
 2. **`.env.production`** - Production deployment
    ```env
-   REACT_APP_API_URL=https://cyber-fraud-api.onrender.com
+   REACT_APP_API_URL=https://cyber-fraud-detection-platform.onrender.com
    REACT_APP_API_KEY=public123
    ```
 
@@ -81,7 +81,7 @@ In Vercel project settings → Environment Variables, add:
 
 | Name | Value | Environment |
 |------|-------|-------------|
-| `REACT_APP_API_URL` | `https://cyber-fraud-api.onrender.com` | Production |
+| `REACT_APP_API_URL` | `https://cyber-fraud-detection-platform.onrender.com` | Production |
 | `REACT_APP_API_KEY` | `public123` | Production |
 
 **Important**: 
@@ -248,7 +248,7 @@ allow_origins=["https://your-app.vercel.app"]
 
 ### Production (`npm run build`)
 - Uses `.env.production`
-- API URL: `https://cyber-fraud-api.onrender.com`
+- API URL: `https://cyber-fraud-detection-platform.onrender.com`
 - Optimized build
 - Minified code
 
@@ -346,4 +346,4 @@ If deployment fails:
 **Status**: Ready for Deployment
 **Last Updated**: Current Session
 **Deployment Platform**: Vercel
-**Backend**: Render (https://cyber-fraud-api.onrender.com)
+**Backend**: Render (https://cyber-fraud-detection-platform.onrender.com)
