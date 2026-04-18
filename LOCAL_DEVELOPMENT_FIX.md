@@ -36,19 +36,19 @@ I've created/updated these files:
 **frontend/.env** (for local development):
 ```
 REACT_APP_API_URL=http://localhost:8000
-REACT_APP_API_KEY=public123
+REACT_APP_API_KEY=your-api-key-here
 ```
 
 **frontend/.env.development** (for npm start):
 ```
 REACT_APP_API_URL=http://localhost:8000
-REACT_APP_API_KEY=public123
+REACT_APP_API_KEY=your-api-key-here
 ```
 
 **frontend/.env.production** (for npm build):
 ```
 REACT_APP_API_URL=https://cyber-fraud-detection-platform.onrender.com
-REACT_APP_API_KEY=public123
+REACT_APP_API_KEY=your-api-key-here
 ```
 
 ### Step 4: Restart Frontend
@@ -138,7 +138,7 @@ If the issue persists, create `.env.local` (this overrides everything):
 ```bash
 cd frontend
 echo "REACT_APP_API_URL=http://localhost:8000" > .env.local
-echo "REACT_APP_API_KEY=public123" >> .env.local
+echo "REACT_APP_API_KEY=your-api-key-here" >> .env.local
 ```
 
 Then restart the frontend.

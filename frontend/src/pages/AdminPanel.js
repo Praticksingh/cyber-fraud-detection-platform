@@ -15,7 +15,7 @@ function AdminPanel() {
   const [activities, setActivities] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRisk, setFilterRisk] = useState('all');
-  const [apiKey, setApiKey] = useState('public123');
+  const [apiKey, setApiKey] = useState(process.env.REACT_APP_API_KEY || '');
   const [loading, setLoading] = useState(true);
   const [auditLogs, setAuditLogs] = useState([]);
   const { showToast } = useToast();
@@ -53,7 +53,9 @@ function AdminPanel() {
   }, [loadData]);
 
   const handleRegenerateKey = () => {
-    const newKey = 'public' + Math.random().toString(36).substring(2, 9);
+    const array = new Uint8Array(12);
+    crypto.getRandomValues(array);
+    const newKey = Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
     setApiKey(newKey);
     showToast('API Key regenerated successfully!', 'success');
   };

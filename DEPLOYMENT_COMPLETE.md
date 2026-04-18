@@ -11,19 +11,19 @@ Successfully configured the frontend for production deployment on Vercel with en
 **`frontend/.env.development`**
 ```env
 REACT_APP_API_URL=http://localhost:8000
-REACT_APP_API_KEY=public123
+REACT_APP_API_KEY=your-api-key-here
 ```
 
 **`frontend/.env.production`**
 ```env
 REACT_APP_API_URL=https://cyber-fraud-detection-platform.onrender.com
-REACT_APP_API_KEY=public123
+REACT_APP_API_KEY=your-api-key-here
 ```
 
 **`frontend/.env.example`**
 ```env
 REACT_APP_API_URL=http://localhost:8000
-REACT_APP_API_KEY=public123
+REACT_APP_API_KEY=your-api-key-here
 ```
 
 ### 2. Files Updated ✅
@@ -150,7 +150,7 @@ git push origin main
 ### 3. Configure Environment
 Add in Vercel dashboard:
 - `REACT_APP_API_URL` = `https://cyber-fraud-detection-platform.onrender.com`
-- `REACT_APP_API_KEY` = `public123`
+- `REACT_APP_API_KEY` = `your-api-key-here`
 
 ### 4. Deploy
 Click "Deploy" and wait for build.

@@ -260,7 +260,7 @@ This is actually good - means connection works!
 ### Vercel (Frontend)
 ```
 REACT_APP_API_URL=https://cyber-fraud-detection-platform.onrender.com
-REACT_APP_API_KEY=public123
+REACT_APP_API_KEY=your-api-key-here
 ```
 
 ### Render (Backend)

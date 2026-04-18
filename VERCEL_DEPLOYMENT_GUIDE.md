@@ -10,19 +10,19 @@ This guide covers deploying the FraudGuard AI frontend to Vercel with proper env
 1. **`.env.development`** - Local development
    ```env
    REACT_APP_API_URL=http://localhost:8000
-   REACT_APP_API_KEY=public123
+   REACT_APP_API_KEY=your-api-key-here
    ```
 
 2. **`.env.production`** - Production deployment
    ```env
    REACT_APP_API_URL=https://cyber-fraud-detection-platform.onrender.com
-   REACT_APP_API_KEY=public123
+   REACT_APP_API_KEY=your-api-key-here
    ```
 
 3. **`.env.example`** - Template for new developers
    ```env
    REACT_APP_API_URL=http://localhost:8000
-   REACT_APP_API_KEY=public123
+   REACT_APP_API_KEY=your-api-key-here
    ```
 
 ### Files Updated
@@ -82,7 +82,7 @@ In Vercel project settings → Environment Variables, add:
 | Name | Value | Environment |
 |------|-------|-------------|
 | `REACT_APP_API_URL` | `https://cyber-fraud-detection-platform.onrender.com` | Production |
-| `REACT_APP_API_KEY` | `public123` | Production |
+| `REACT_APP_API_KEY` | `your-api-key-here` | Production |
 
 **Important**: 
 - Environment variables must start with `REACT_APP_` to be accessible in React

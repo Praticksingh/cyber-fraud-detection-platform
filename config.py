@@ -9,9 +9,22 @@ import os
 class Config:
     """Application configuration loaded from environment variables."""
     
-    # API Keys
-    PUBLIC_API_KEY = os.getenv("PUBLIC_API_KEY", "public123")
-    ADMIN_API_KEY = os.getenv("ADMIN_API_KEY", "admin123")
+    # API Keys — must be set via environment variables; no defaults are provided.
+    PUBLIC_API_KEY = os.getenv("PUBLIC_API_KEY")
+    ADMIN_API_KEY = os.getenv("ADMIN_API_KEY")
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+
+    @classmethod
+    def validate_required(cls) -> None:
+        """Raise RuntimeError if any required environment variables are missing."""
+        missing = [name for name in ("PUBLIC_API_KEY", "ADMIN_API_KEY") if not getattr(cls, name)]
+        if missing:
+            raise RuntimeError(
+                f"Missing required environment variable(s): {', '.join(missing)}. "
+                "Please set them before starting the server."
+            )
     
     # Alert Settings - Email
     ALERT_EMAIL_ENABLED = os.getenv("ALERT_EMAIL_ENABLED", "false").lower() == "true"

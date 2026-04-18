@@ -16,8 +16,8 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-production}
       
       # API Keys
-      - PUBLIC_API_KEY=${PUBLIC_API_KEY:-public123}
-      - ADMIN_API_KEY=${ADMIN_API_KEY:-admin123}
+      - PUBLIC_API_KEY=${PUBLIC_API_KEY}
+      - ADMIN_API_KEY=${ADMIN_API_KEY}
       
       # Alert Settings - Email
       - ALERT_EMAIL_ENABLED=${ALERT_EMAIL_ENABLED:-false}
