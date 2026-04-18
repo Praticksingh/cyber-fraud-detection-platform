@@ -12,9 +12,10 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr, validator
 from database import get_db
 from db_models import User
+from config import Config
 
-# JWT Configuration
-SECRET_KEY = "your-secret-key-change-in-production-use-env-variable"  # Change in production!
+# JWT Configuration — SECRET_KEY is validated at startup via Config.validate_required().
+SECRET_KEY: str = Config.JWT_SECRET_KEY or ""
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
 

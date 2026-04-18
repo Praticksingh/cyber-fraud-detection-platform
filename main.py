@@ -19,7 +19,10 @@ from database import get_db, init_db
 from db_models import FraudLog, Blacklist, User
 from security import verify_api_key, verify_admin_key
 from alert_service import AlertService
-from config import config
+from config import config, Config
+
+# Validate that all required environment variables are set before starting
+Config.validate_required()
 from graph_service import fraud_graph
 from auth import (
     UserRegister, UserLogin, Token,
@@ -101,8 +104,8 @@ async def root():
         "admin_dashboard": "/admin",
         "authentication": {
             "header": "X-API-KEY",
-            "public_key": "Use PUBLIC_API_KEY environment variable (default: public123 for local dev)",
-            "admin_key": "Use ADMIN_API_KEY environment variable (default: admin123 for local dev)"
+            "public_key": "Set via PUBLIC_API_KEY environment variable",
+            "admin_key": "Set via ADMIN_API_KEY environment variable"
         },
         "documentation": {
             "interactive": "/docs",

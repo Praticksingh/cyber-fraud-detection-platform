@@ -31,7 +31,7 @@ The backend `main.py` now includes:
 
 ```
 Name: REACT_APP_API_URL
-Value: https://cyber-fraud-api.onrender.com
+Value: https://cyber-fraud-detection-platform.onrender.com
 Environment: Production, Preview, Development
 ```
 
@@ -47,12 +47,12 @@ Environment: Production, Preview, Development
 
 Your backend should be accessible at:
 ```
-https://cyber-fraud-api.onrender.com
+https://cyber-fraud-detection-platform.onrender.com
 ```
 
 Test it:
 ```bash
-curl https://cyber-fraud-api.onrender.com/
+curl https://cyber-fraud-detection-platform.onrender.com/
 ```
 
 Expected response:
@@ -66,7 +66,7 @@ Expected response:
 ### Step 4: Test Registration Endpoint
 
 ```bash
-curl -X POST https://cyber-fraud-api.onrender.com/register \
+curl -X POST https://cyber-fraud-detection-platform.onrender.com/register \
   -H "Content-Type: application/json" \
   -d '{
     "username": "testuser",
@@ -110,7 +110,7 @@ Once deployed, check browser console:
 5. Check Network tab for API calls
 
 **What to look for:**
-- API calls should go to `https://cyber-fraud-api.onrender.com`
+- API calls should go to `https://cyber-fraud-detection-platform.onrender.com`
 - NOT to `http://localhost:8000`
 - Status should be 200/201 (success) or 400 (validation error)
 - NOT CORS errors
@@ -143,7 +143,7 @@ Backend already configured to allow all origins. If still having issues:
 **Cause**: Wrong backend URL
 
 **Solution**:
-1. Verify backend URL: `https://cyber-fraud-api.onrender.com`
+1. Verify backend URL: `https://cyber-fraud-detection-platform.onrender.com`
 2. Check if Render service is deployed
 3. Verify environment variable is correct
 
@@ -168,14 +168,14 @@ Backend already configured to allow all origins. If still having issues:
 
 ### Backend (Render):
 - [ ] Service is running
-- [ ] URL is accessible: `https://cyber-fraud-api.onrender.com`
+- [ ] URL is accessible: `https://cyber-fraud-detection-platform.onrender.com`
 - [ ] CORS is configured (allow all origins)
 - [ ] Database is initialized
 - [ ] Endpoints respond correctly
 
 ### Frontend (Vercel):
 - [ ] Environment variable `REACT_APP_API_URL` is set
-- [ ] Value is `https://cyber-fraud-api.onrender.com`
+- [ ] Value is `https://cyber-fraud-detection-platform.onrender.com`
 - [ ] Redeployed after setting variables
 - [ ] Browser console shows correct API URL
 - [ ] No CORS errors in console
@@ -185,7 +185,7 @@ Backend already configured to allow all origins. If still having issues:
 - [ ] Go to /register
 - [ ] Fill in form
 - [ ] Check browser console (F12)
-- [ ] Should see POST to `https://cyber-fraud-api.onrender.com/register`
+- [ ] Should see POST to `https://cyber-fraud-detection-platform.onrender.com/register`
 - [ ] Should get success or validation error (not network error)
 
 ## Quick Test Commands
@@ -193,15 +193,15 @@ Backend already configured to allow all origins. If still having issues:
 ### Test Backend Directly:
 ```bash
 # Test root endpoint
-curl https://cyber-fraud-api.onrender.com/
+curl https://cyber-fraud-detection-platform.onrender.com/
 
 # Test registration
-curl -X POST https://cyber-fraud-api.onrender.com/register \
+curl -X POST https://cyber-fraud-detection-platform.onrender.com/register \
   -H "Content-Type: application/json" \
   -d '{"username":"test","email":"test@test.com","password":"Test@1234"}'
 
 # Test login
-curl -X POST https://cyber-fraud-api.onrender.com/login \
+curl -X POST https://cyber-fraud-detection-platform.onrender.com/login \
   -H "Content-Type: application/json" \
   -d '{"username":"test","password":"Test@1234"}'
 ```
@@ -210,7 +210,7 @@ curl -X POST https://cyber-fraud-api.onrender.com/login \
 1. Open Vercel URL
 2. Open browser console (F12)
 3. Type: `console.log(process.env.REACT_APP_API_URL)`
-4. Should show: `https://cyber-fraud-api.onrender.com`
+4. Should show: `https://cyber-fraud-detection-platform.onrender.com`
 
 ## Environment Variable Setup (Detailed)
 
@@ -223,7 +223,7 @@ curl -X POST https://cyber-fraud-api.onrender.com/login \
 5. **Add Variable**:
    - Click "Add New"
    - Name: `REACT_APP_API_URL`
-   - Value: `https://cyber-fraud-api.onrender.com`
+   - Value: `https://cyber-fraud-detection-platform.onrender.com`
    - Environments: Check all (Production, Preview, Development)
    - Click "Save"
 6. **Redeploy**:
@@ -237,7 +237,7 @@ curl -X POST https://cyber-fraud-api.onrender.com/login \
 1. **Login to Render**: https://render.com
 2. **Select Service**: Click on your backend service
 3. **Check Status**: Should show "Live" with green dot
-4. **Check URL**: Should be `https://cyber-fraud-api.onrender.com`
+4. **Check URL**: Should be `https://cyber-fraud-detection-platform.onrender.com`
 5. **Check Logs**: Click "Logs" to see if there are any errors
 6. **Environment Variables** (if needed):
    - Go to "Environment" tab
@@ -248,7 +248,7 @@ curl -X POST https://cyber-fraud-api.onrender.com/login \
 
 ### Test 1: Backend Health
 ```bash
-curl https://cyber-fraud-api.onrender.com/
+curl https://cyber-fraud-detection-platform.onrender.com/
 ```
 ✅ Should return welcome message
 
@@ -274,7 +274,7 @@ curl https://cyber-fraud-api.onrender.com/
 2. Go to Network tab
 3. Try to register/login
 4. Check API calls:
-   - ✅ URL should be `https://cyber-fraud-api.onrender.com`
+   - ✅ URL should be `https://cyber-fraud-detection-platform.onrender.com`
    - ✅ Status should be 200/201/400 (not network error)
    - ✅ No CORS errors
 
@@ -332,7 +332,7 @@ If still having issues:
 
 4. **Test Backend Directly**:
    ```bash
-   curl https://cyber-fraud-api.onrender.com/
+   curl https://cyber-fraud-detection-platform.onrender.com/
    ```
 
 ## Summary

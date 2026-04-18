@@ -3,7 +3,7 @@
 ## Problem
 When running the platform locally, you're seeing:
 ```
-Cannot connect to server at https://cyber-fraud-api.onrender.com
+Cannot connect to server at https://cyber-fraud-detection-platform.onrender.com
 Please ensure the backend is running on port 8000.
 ```
 
@@ -36,19 +36,19 @@ I've created/updated these files:
 **frontend/.env** (for local development):
 ```
 REACT_APP_API_URL=http://localhost:8000
-REACT_APP_API_KEY=public123
+REACT_APP_API_KEY=your-api-key-here
 ```
 
 **frontend/.env.development** (for npm start):
 ```
 REACT_APP_API_URL=http://localhost:8000
-REACT_APP_API_KEY=public123
+REACT_APP_API_KEY=your-api-key-here
 ```
 
 **frontend/.env.production** (for npm build):
 ```
-REACT_APP_API_URL=https://cyber-fraud-api.onrender.com
-REACT_APP_API_KEY=public123
+REACT_APP_API_URL=https://cyber-fraud-detection-platform.onrender.com
+REACT_APP_API_KEY=your-api-key-here
 ```
 
 ### Step 4: Restart Frontend
@@ -108,7 +108,7 @@ After restarting:
 
 1. **Check Browser Console** (F12):
    - Should see API calls to `http://localhost:8000`
-   - NOT to `https://cyber-fraud-api.onrender.com`
+   - NOT to `https://cyber-fraud-detection-platform.onrender.com`
 
 2. **Check Network Tab**:
    - API calls should go to localhost
@@ -138,7 +138,7 @@ If the issue persists, create `.env.local` (this overrides everything):
 ```bash
 cd frontend
 echo "REACT_APP_API_URL=http://localhost:8000" > .env.local
-echo "REACT_APP_API_KEY=public123" >> .env.local
+echo "REACT_APP_API_KEY=your-api-key-here" >> .env.local
 ```
 
 Then restart the frontend.

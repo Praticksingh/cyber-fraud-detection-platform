@@ -8,10 +8,12 @@ import json
 import asyncio
 import websockets
 
-BASE_URL = "http://localhost:8000"
-WS_URL = "ws://localhost:8000/ws/dashboard"
-ADMIN_KEY = "admin123"
-PUBLIC_KEY = "public123"
+import os
+
+BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
+WS_URL = os.getenv("API_WS_URL", "ws://localhost:8000/ws/dashboard")
+ADMIN_KEY = os.getenv("ADMIN_API_KEY", "")
+PUBLIC_KEY = os.getenv("PUBLIC_API_KEY", "")
 
 
 def test_ml_retrain():

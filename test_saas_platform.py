@@ -6,9 +6,11 @@ Tests all new endpoints and graph functionality
 import requests
 import json
 
+import os
+
 # Configuration
-BASE_URL = "http://localhost:8000"
-API_KEY = "public123"  # Use your PUBLIC_API_KEY
+BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
+API_KEY = os.getenv("PUBLIC_API_KEY", "")  # Set PUBLIC_API_KEY env var before running
 
 headers = {
     "X-API-KEY": API_KEY,

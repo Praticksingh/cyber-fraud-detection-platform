@@ -9,9 +9,26 @@ import os
 class Config:
     """Application configuration loaded from environment variables."""
     
-    # API Keys
-    PUBLIC_API_KEY = os.getenv("PUBLIC_API_KEY", "public123")
-    ADMIN_API_KEY = os.getenv("ADMIN_API_KEY", "admin123")
+    # API Keys — must be set via environment variables; no defaults are provided.
+    PUBLIC_API_KEY = os.getenv("PUBLIC_API_KEY")
+    ADMIN_API_KEY = os.getenv("ADMIN_API_KEY")
+
+    # JWT Secret — must be set via environment variable.
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+
+    @classmethod
+    def validate_required(cls) -> None:
+        """Raise RuntimeError if any required environment variables are missing."""
+        required = ("PUBLIC_API_KEY", "ADMIN_API_KEY", "JWT_SECRET_KEY")
+        missing = [name for name in required if not getattr(cls, name)]
+        if missing:
+            raise RuntimeError(
+                f"Missing required environment variable(s): {', '.join(missing)}. "
+                "Please set them before starting the server."
+            )
     
     # Alert Settings - Email
     ALERT_EMAIL_ENABLED = os.getenv("ALERT_EMAIL_ENABLED", "false").lower() == "true"
@@ -37,6 +54,17 @@ class Config:
         return os.getenv("ENVIRONMENT", "development").lower() == "production"
     
     @classmethod
+    def _sanitize_db_url(cls, url: str) -> str:
+        """Return the database URL with any embedded credentials removed."""
+        import re
+        # Remove password from connection strings like scheme://user:password@host/db
+        sanitized = re.sub(r'(://[^:@/]*:)[^@]*(@)', r'\1***\2', url)
+        # For SQLite (sqlite:///path), also hide the file path
+        if sanitized.startswith("sqlite:///"):
+            sanitized = "sqlite:///***"
+        return sanitized
+
+    @classmethod
     def get_config_summary(cls) -> dict:
         """Get configuration summary (without sensitive data)."""
         return {
@@ -45,7 +73,7 @@ class Config:
             "alert_webhook_enabled": bool(cls.ALERT_WEBHOOK_URL),
             "smtp_host": cls.SMTP_HOST,
             "smtp_port": cls.SMTP_PORT,
-            "database_url": cls.DATABASE_URL.split("///")[0] + "///" + "***",  # Hide path
+            "database_url": cls._sanitize_db_url(cls.DATABASE_URL),
             "host": cls.HOST,
             "port": cls.PORT
         }
