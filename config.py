@@ -13,13 +13,17 @@ class Config:
     PUBLIC_API_KEY = os.getenv("PUBLIC_API_KEY")
     ADMIN_API_KEY = os.getenv("ADMIN_API_KEY")
 
+    # JWT Secret — must be set via environment variable.
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
 
     @classmethod
     def validate_required(cls) -> None:
         """Raise RuntimeError if any required environment variables are missing."""
-        missing = [name for name in ("PUBLIC_API_KEY", "ADMIN_API_KEY") if not getattr(cls, name)]
+        required = ("PUBLIC_API_KEY", "ADMIN_API_KEY", "JWT_SECRET_KEY")
+        missing = [name for name in required if not getattr(cls, name)]
         if missing:
             raise RuntimeError(
                 f"Missing required environment variable(s): {', '.join(missing)}. "

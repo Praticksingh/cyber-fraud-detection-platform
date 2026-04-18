@@ -3,7 +3,6 @@ Authentication module for user registration, login, and JWT token management.
 """
 from datetime import datetime, timedelta
 from typing import Optional
-import os
 import re
 import bcrypt
 from jose import JWTError, jwt
@@ -13,15 +12,10 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr, validator
 from database import get_db
 from db_models import User
+from config import Config
 
-# JWT Configuration — must be set via the JWT_SECRET_KEY environment variable.
-_secret = os.getenv("JWT_SECRET_KEY")
-if not _secret:
-    raise RuntimeError(
-        "JWT_SECRET_KEY environment variable is not set. "
-        "Please set it to a long, random secret before starting the server."
-    )
-SECRET_KEY: str = _secret
+# JWT Configuration — SECRET_KEY is validated at startup via Config.validate_required().
+SECRET_KEY: str = Config.JWT_SECRET_KEY or ""
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
 

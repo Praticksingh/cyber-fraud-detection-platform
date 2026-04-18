@@ -55,7 +55,8 @@ function AdminPanel() {
   const handleRegenerateKey = () => {
     const array = new Uint8Array(12);
     crypto.getRandomValues(array);
-    const newKey = Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
+    const hex = Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
+    const newKey = `pub_${hex}`;
     setApiKey(newKey);
     showToast('API Key regenerated successfully!', 'success');
   };
